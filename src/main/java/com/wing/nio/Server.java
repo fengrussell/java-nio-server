@@ -78,21 +78,26 @@ public class Server implements Runnable {
 
     private void readMsg(SelectionKey key) throws IOException {
         SocketChannel socketChannel = (SocketChannel)key.channel();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(2);
+        ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
 
         int bytesRead = socketChannel.read(byteBuffer);
 
-        while (bytesRead != -1) {
+        // 对方发送的字节数可能超过allocate分配的长度，所以在while循环最后一行代码还需要read，直到byteRead=0时才表示一次完整的数据读取完了。
+        // 注意最后有两个不可见字符（可能时回车换行，待确认）
+        while (bytesRead > 0) {
             byteBuffer.flip();
 
+
+            int num = 0;
+            // hasRemaining是判断position是否小于limit。byteBuffer.get()执行一次postion会加1
             while (byteBuffer.hasRemaining()) {
                 System.out.print((char) byteBuffer.get());
             }
 
             byteBuffer.clear(); //make buffer ready for writing
             bytesRead = socketChannel.read(byteBuffer);
-
         }
+
     }
 
     private void writeMsg(SelectionKey key, String msg) throws IOException {
@@ -101,6 +106,7 @@ public class Server implements Runnable {
     }
 
     public static void main(String[] args) {
+
         new Thread(new Server(8000)).start();
     }
 }
