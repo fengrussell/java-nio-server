@@ -85,8 +85,7 @@ public class Server implements Runnable {
         // 对方发送的字节数可能超过allocate分配的长度，所以在while循环最后一行代码还需要read，直到byteRead=0时才表示一次完整的数据读取完了。
         // 注意最后有两个不可见字符（可能时回车换行，待确认）
         while (bytesRead > 0) {
-            byteBuffer.flip();
-
+            byteBuffer.flip(); // 上面的代码执行read，然后在flip。如果flip在read之前，代码好像有问题（死循环了），还未确认。
 
             int num = 0;
             // hasRemaining是判断position是否小于limit。byteBuffer.get()执行一次postion会加1
