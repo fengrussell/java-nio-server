@@ -17,13 +17,27 @@ public class HttpContainer implements Runnable {
     private Selector readSelecor = null;
     private Selector writeSelecor = null;
 
-    public HttpContainer(Queue<Socket> socketQueue) {
+    public HttpContainer(Queue<Socket> socketQueue) throws IOException {
         this.socketQueue = socketQueue;
+        readSelecor = Selector.open();
+        writeSelecor = Selector.open();
     }
 
     @Override
     public void run() {
+        while(true){
+            try{
+                executeCycle();
+            } catch(IOException e){
+                e.printStackTrace();
+            }
 
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void executeCycle() throws IOException {
@@ -66,7 +80,7 @@ public class HttpContainer implements Runnable {
                 Socket socket = (Socket)key.attachment();
 
                 // 解析socket，处理HTTP请求
-
+                new HttpParser(socket).pareseHttpRequest();
 
                 keyIterator.remove();
             }

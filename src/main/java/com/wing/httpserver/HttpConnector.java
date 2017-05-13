@@ -36,7 +36,7 @@ public class HttpConnector implements Runnable {
         try {
             while (true) {
                 SocketChannel socketChannel = serverSocketChannel.accept();
-                System.out.println("Time:" + "HttpConnector accept new socket:" + socketChannel.toString());
+                System.out.println("socket accepted: " + socketChannel.toString());
                 this.socketQueue.add(new Socket(socketChannel));
             }
         } catch (IOException e) {
