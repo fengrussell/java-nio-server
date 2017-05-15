@@ -28,6 +28,10 @@ public class HttpHeader {
         this.unparsedFileds = new ArrayList<String>();
     }
 
+    public String getMethod() {
+        return this.method;
+    }
+
     @Override
     public String toString() {
         return "Method: " + this.method + ", Version: " + this.version + ", URI: " + this.uri;
@@ -94,7 +98,8 @@ public class HttpHeader {
 
         if (str.indexOf("GET ") == 0) {
             int posHTTP = str.indexOf("HTTP/");
-            if (posHTTP > 6) {
+            // GET / HTTP/1.1  indexOf返回下标从0开始，HTTP/1.1前面最少会有6个字符，所以最小值为6
+            if (posHTTP >= 6) {
                 this.isValid = true;
                 this.method = "GET";
                 this.uri = str.substring(4, posHTTP-1);
@@ -105,7 +110,7 @@ public class HttpHeader {
 
         } else if (str.indexOf("POST ") == 0) {
             int posHTTP = str.indexOf("HTTP/");
-            if (posHTTP > 7) {
+            if (posHTTP >= 7) {
                 this.isValid = true;
                 this.method = "GET";
                 this.uri = str.substring(5, posHTTP-1);
@@ -117,5 +122,17 @@ public class HttpHeader {
             this.unparsedFileds.add(str);
         }
 
+    }
+
+    public static void main(String[] args) {
+        // GET / HTTP/1.1   14
+        byte[] bytes1 = {'G', 'E', 'T', ' ', '/', ' ', 'H', 'T', 'T', 'P', '/', '1', '.', '1', '\r', '\n'};
+        // Host: 127.0.0.1:8080 20
+        byte[] bytes2 = {'H', 'o', 's', 't', ':', ' ', '1', '2', '7', '.', '0', '.', '0', '.', '1', ':', '8', '0', '8', '0', '\r', '\n'};
+
+        HttpHeader httpHeader = new HttpHeader();
+        httpHeader.parseByte2HttpHeader(bytes1);
+        httpHeader.parseByte2HttpHeader(bytes2);
+        System.out.println(httpHeader.toString());
     }
 }
