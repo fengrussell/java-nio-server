@@ -64,6 +64,7 @@ public class HttpHeader {
         int posR = 0;
         int posN = 0;
         int posNewField = 0;
+        boolean breakline = false;
 
         for (int i = 0; i < bytes.length; i++) {
             if (bytes[i] == '\r') {
@@ -74,6 +75,7 @@ public class HttpHeader {
 
             // 如果是连续的\r\n，需要提取一个字段
             if (posN == (posR + 1)) {
+                breakline = true;
                 byte[] fieldBytes = new byte[posR - posNewField];
 
                 System.arraycopy(bytes, posNewField, fieldBytes, 0, posR - posNewField);
@@ -85,11 +87,20 @@ public class HttpHeader {
             }
         }
 
-        if (posN < bytes.length-1) {
-            this.remainBytes = new byte[bytes.length - posNewField];
+        if (breakline) {
+            // 不为0说明\r\n不是byte的最后的位置
+            if (posNewField != 0) {
+                this.remainBytes = new byte[bytes.length - posNewField];
 
-            System.arraycopy(bytes, posNewField, this.remainBytes, 0, bytes.length - posNewField);
+                System.arraycopy(bytes, posNewField, this.remainBytes, 0, bytes.length - posNewField);
+            } else {
+                this.remainBytes = null; // byte最后两个字符为\r\n
+            }
+        } else {
+            this.remainBytes = new byte[bytes.length];
+            System.arraycopy(bytes, 0, this.remainBytes, 0, bytes.length);
         }
+
     }
 
     private void extractHttpHeaderFieldFromBytes(byte[] bytes) {
