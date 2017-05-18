@@ -32,6 +32,10 @@ public class HttpHeader {
         return this.method;
     }
 
+    public boolean isValid() {
+        return this.isValid;
+    }
+
     @Override
     public String toString() {
         return "Method: " + this.method + ", Version: " + this.version + ", URI: " + this.uri;
@@ -135,15 +139,4 @@ public class HttpHeader {
 
     }
 
-    public static void main(String[] args) {
-        // GET / HTTP/1.1   14
-        byte[] bytes1 = {'G', 'E', 'T', ' ', '/', ' ', 'H', 'T', 'T', 'P', '/', '1', '.', '1', '\r', '\n'};
-        // Host: 127.0.0.1:8080 20
-        byte[] bytes2 = {'H', 'o', 's', 't', ':', ' ', '1', '2', '7', '.', '0', '.', '0', '.', '1', ':', '8', '0', '8', '0', '\r', '\n'};
-
-        HttpHeader httpHeader = new HttpHeader();
-        httpHeader.parseByte2HttpHeader(bytes1);
-        httpHeader.parseByte2HttpHeader(bytes2);
-        System.out.println(httpHeader.toString());
-    }
 }
