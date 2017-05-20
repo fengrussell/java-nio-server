@@ -2,41 +2,30 @@ package com.wing.httpserver;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 /**
- * Created by russell on 2017/5/13.
+ * Created by russell on 2017/5/20.
  */
-public class HttpParser {
-
-
+public class Request {
+    //
     private Socket socket;
 
+    //
     private ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
 
-    public HttpParser(Socket socket) {
+    private HttpHeader httpHeader = null;
 
+    private Response response = null;
+
+    public Request(Socket socket) {
         this.socket = socket;
+        this.httpHeader = new HttpHeader();
     }
 
-    public void pareseHttpRequest() {
-        try {
-            readSocketData();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 读取socket中的数据
-     *
-     * @throws IOException
-     */
-    private void readSocketData() throws IOException {
+    public void parseRequest() throws IOException {
         SocketChannel socketChannel = this.socket.getSocketChannel();
         int bytesRead = socketChannel.read(this.byteBuffer);
-        HttpHeader httpHeader = new HttpHeader();
 
         while (bytesRead > 0) {
             this.byteBuffer.flip();
@@ -59,23 +48,33 @@ public class HttpParser {
 
         // TODO 此处有问题，通过浏览器输入地址，可以打印出来信息，后续再请求就不停打印，死循环了。还需要抓包分析一下。
         System.out.println(httpHeader.toString());
-        processHttpRequest(socket, httpHeader);
-
     }
 
-    private void processHttpRequest(Socket socket, HttpHeader httpHeader) throws IOException {
-
-        if (httpHeader.isValid()) { // 可以正确解析到HTTP头，则进一步处理HTTP请求
-
-            // 根据请求URI来解析，查找对应的文件或执行动态类
-
-            // 先模拟一个文件返回
-
-        } else { // 非法的HTTP请求，之间关闭socket
-            socket.setClosable(true);
-//            socket.close();
-        }
-
+    public boolean isValidHttpRequest() {
+        return this.httpHeader.isValid();
     }
 
+    public String getMethond() {
+        return this.httpHeader.getMethod();
+    }
+
+    public String getUri() {
+        return this.httpHeader.getUri();
+    }
+
+    public String getProtocol() {
+        return this.httpHeader.getProtocol();
+    }
+
+    public String getProtocolVersion() {
+        return this.httpHeader.getVersion();
+    }
+
+    public Response getResponse() {
+        return response;
+    }
+
+    public void setResponse(Response response) {
+        this.response = response;
+    }
 }

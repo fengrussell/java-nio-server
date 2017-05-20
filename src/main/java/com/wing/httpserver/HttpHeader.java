@@ -9,6 +9,7 @@ import java.util.List;
 public class HttpHeader {
     // HTTP头关键字
     private String method = "";
+    private String protocol = "";
     private String version = "";
     private String host = "";
     private String uri = "";
@@ -22,14 +23,26 @@ public class HttpHeader {
     // 未完成解析的字节
     private byte[] remainBytes = null;
 
-//    private byte[] newBytes;
 
     public HttpHeader() {
+
         this.unparsedFileds = new ArrayList<String>();
     }
 
     public String getMethod() {
         return this.method;
+    }
+
+    public String getUri() {
+        return this.uri;
+    }
+
+    public String getProtocol() {
+        return this.protocol;
+    }
+
+    public String getVersion() {
+        return this.version;
     }
 
     public boolean isValid() {
@@ -118,6 +131,7 @@ public class HttpHeader {
                 this.isValid = true;
                 this.method = "GET";
                 this.uri = str.substring(4, posHTTP-1);
+                this.protocol = str.substring(posHTTP, str.length());
                 this.version = str.substring(posHTTP+5, str.length());
             } else {
                 return;
@@ -129,11 +143,14 @@ public class HttpHeader {
                 this.isValid = true;
                 this.method = "GET";
                 this.uri = str.substring(5, posHTTP-1);
+                this.protocol = str.substring(posHTTP, str.length());
                 this.version = str.substring(posHTTP+5, str.length());
             } else {
                 return;
             }
-        } else {
+        } else if (str.indexOf("Host: ") == 0) {
+            this.host = str.substring(6, str.length());
+        } else { // 没有解析到的都添加到list中
             this.unparsedFileds.add(str);
         }
 

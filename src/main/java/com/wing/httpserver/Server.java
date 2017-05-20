@@ -10,7 +10,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class Server {
 
     private HttpConnector httpConnector = null;
-    private HttpContainer httpContainer = null;
+    private HttpProcessor httpProcessor = null;
 
     private int port;
 
@@ -22,10 +22,10 @@ public class Server {
     public void start() throws IOException {
         Queue<Socket> socketQueue = new ArrayBlockingQueue<Socket>(1024);
         this.httpConnector = new HttpConnector(port,socketQueue);
-        this.httpContainer = new HttpContainer(socketQueue);
+        this.httpProcessor = new HttpProcessor(socketQueue, new HttpContainer());
 
         new Thread(this.httpConnector).start();
-        new Thread(this.httpContainer).start();
+        new Thread(this.httpProcessor).start();
     }
 
     public static void main(String[] args) throws IOException {
