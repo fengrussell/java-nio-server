@@ -176,6 +176,12 @@ public class HttpProcessor implements Runnable {
             socket.close(); // 改成抛出Exception，由上层关闭
         } else {
             this.httpContainer.service(request, response);
+            // 如果reponse有数据要返回，则加入到写数据的queue
+            if (response.isReturnData()) {
+                // 进入到writer模式，用队列的方式
+            } else {
+                // 可以关闭socket
+            }
             processSocket(socket);
         }
     }
