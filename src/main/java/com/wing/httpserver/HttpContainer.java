@@ -1,6 +1,9 @@
 package com.wing.httpserver;
 
 
+import com.wing.httpserver.util.FileUtil;
+
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -23,12 +26,9 @@ public class HttpContainer {
 
         // 解析uri，查找文件，流赋值到response
 
-        String path = "";
-
-        FileInputStream fis = new FileInputStream("data/nio-data.txt");
-
-        FileChannel inChannel = fis.getChannel();
-
+        // 先返回404html，后面再完善逻辑
+        File dataFile = FileUtil.getFile(Config.geResourceRootPath() + "404.html");
+        response.setDataFile(dataFile);
 
 
     }

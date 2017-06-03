@@ -1,7 +1,13 @@
 package com.wing.httpserver;
 
+import com.sun.org.apache.regexp.internal.RE;
+import com.wing.httpserver.http.HttpResponseHeader;
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.HashSet;
@@ -136,21 +142,51 @@ public class HttpProcessor implements Runnable {
             while(keyIterator.hasNext()){
                 SelectionKey key = keyIterator.next();
 
-                Socket socket = (Socket) key.attachment();
+                // 在write的时候attack的是Response，socket是Response的变量
+                Response response = (Response)key.attachment();
+                Socket socket = response.getSocket();
 
-                this.writeByteBuffer.clear(); // 要先clear，然后再put
+                File htmlFile = response.getDataFile();
+                // 1、创建HTTP应答头
+                HttpResponseHeader respHeader = new HttpResponseHeader(200, htmlFile.length());
+                response.setResponseHeader(respHeader);
 
-                this.writeByteBuffer.put("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\n 404!".getBytes());
-                this.writeByteBuffer.flip();
+                // 2、打开要返回内容的文件
+                FileInputStream fis = new FileInputStream(htmlFile);
+                FileChannel fileChannel = fis.getChannel();
+                ByteBuffer buf = ByteBuffer.allocate(1024);
 
-                int bytesWritten      = socket.getSocketChannel().write(writeByteBuffer);
-                while(bytesWritten > 0 && writeByteBuffer.hasRemaining()){
+                try {
+                    // 3、开始向buffer写入数据
+                    // 3.1、先写应答头
+                    // 3.2、再写文件的内容
+                    // TODO 这个逻辑有问题，如果文件过大有异常
+                    this.writeByteBuffer.clear(); // 要先clear，然后再put
+
+                    // 写入200 OK 应答头
+                    this.writeByteBuffer.put(respHeader.getResponseHeaderBytes());
+                    // 写入file流
+                    while (fileChannel.read(buf) != -1) {
+                        writeByteBuffer.put(buf);
+                        buf.clear();
+                    }
+
                     this.writeByteBuffer.flip();
-                    bytesWritten = socket.getSocketChannel().write(writeByteBuffer);;
-                    this.writeByteBuffer.clear();
+
+                    int bytesWritten      = socket.getSocketChannel().write(writeByteBuffer);
+                    while(bytesWritten > 0 && writeByteBuffer.hasRemaining()){
+                        this.writeByteBuffer.flip();
+                        bytesWritten = socket.getSocketChannel().write(writeByteBuffer);;
+                        this.writeByteBuffer.clear();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    // 4、相关的close
+                    fileChannel.close();
+                    fis.close();
                 }
-                socket.setClosable(true);
-                processSocket(socket);
+                socket.close();
 
                 keyIterator.remove();
             }
@@ -176,23 +212,14 @@ public class HttpProcessor implements Runnable {
             socket.close(); // 改成抛出Exception，由上层关闭
         } else {
             this.httpContainer.service(request, response);
-            // 如果reponse有数据要返回，则加入到写数据的queue
+            // 如果reponse有数据要返回，则加入到写数据的queue，由Q再register到writeSelector
             if (response.isReturnData()) {
-                // 进入到writer模式，用队列的方式
+                // 进入到writer模式，用队列的方式。当前直接register
+                socket.getSocketChannel().register(this.writeSelector, SelectionKey.OP_WRITE, response);
             } else {
                 // 可以关闭socket
+                socket.close();
             }
-            processSocket(socket);
-        }
-    }
-
-    private void processSocket(Socket socket) throws IOException {
-        if (socket.isClosable()) {
-            socket.close();
-        } else {
-//            nonEmptySockets.add(socket);
-            // 如果又要返回的数据，socket register为write
-            socket.getSocketChannel().register(this.writeSelector, SelectionKey.OP_WRITE, socket);
         }
     }
 

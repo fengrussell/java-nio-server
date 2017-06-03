@@ -1,5 +1,6 @@
 package com.wing.httpserver; 
 
+import com.wing.httpserver.http.HttpRequestHeader;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.Before; 
@@ -36,7 +37,7 @@ public void testExtractHttpHeaderFieldFromBytes() throws Exception {
     // Host: 127.0.0.1:8080    长度20(不包含\r\n)
     byte[] bytes1_2 = {'H', 'o', 's', 't', ':', ' ', '1', '2', '7', '.', '0', '.', '0', '.', '1', ':', '8', '0', '8', '0', '\r', '\n'};
 
-    HttpHeader httpHeader1 = new HttpHeader();
+    HttpRequestHeader httpHeader1 = new HttpRequestHeader();
     httpHeader1.parseByte2HttpHeader(bytes1_1);
     httpHeader1.parseByte2HttpHeader(bytes1_2);
 
@@ -48,7 +49,7 @@ public void testExtractHttpHeaderFieldFromBytes() throws Exception {
     // t: 127.0.0.1:8080    长度19(包含\r\n)
     byte[] bytes2_2 = {'t', ':', ' ', '1', '2', '7', '.', '0', '.', '0', '.', '1', ':', '8', '0', '8', '0', '\r', '\n'};
 
-    HttpHeader httpHeader2 = new HttpHeader();
+    HttpRequestHeader httpHeader2 = new HttpRequestHeader();
     httpHeader2.parseByte2HttpHeader(bytes2_1);
     httpHeader2.parseByte2HttpHeader(bytes2_2);
 
@@ -63,7 +64,7 @@ public void testExtractHttpHeaderFieldFromBytes() throws Exception {
     byte[] bytes3_3 = {'t', ':', ' ', '1', '2', '7', '.', '0', '.', '0', '.', '1', ':', '8', '0', '8', '0', '\r', '\n'};
 
 
-    HttpHeader httpHeader3 = new HttpHeader();
+    HttpRequestHeader httpHeader3 = new HttpRequestHeader();
     httpHeader3.parseByte2HttpHeader(bytes3_1);
     httpHeader3.parseByte2HttpHeader(bytes3_2);
     httpHeader3.parseByte2HttpHeader(bytes3_3);

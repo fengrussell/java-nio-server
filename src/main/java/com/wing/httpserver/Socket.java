@@ -38,13 +38,13 @@ public class Socket {
         return this.socketChannel;
     }
 
-    public void setClosable(boolean closable) {
-        this.closable = closable;
-    }
-
-    public boolean isClosable() {
-        return this.closable;
-    }
+//    public void setClosable(boolean closable) {
+//        this.closable = closable;
+//    }
+//
+//    public boolean isClosable() {
+//        return this.closable;
+//    }
 
     public void close() throws IOException {
         if (socketChannel != null) {

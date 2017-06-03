@@ -20,6 +20,7 @@ public class Server {
      }
 
     public void start() throws IOException {
+        Config.init();
         Queue<Socket> socketQueue = new ArrayBlockingQueue<Socket>(1024);
         this.httpConnector = new HttpConnector(port,socketQueue);
         this.httpProcessor = new HttpProcessor(socketQueue, new HttpContainer());

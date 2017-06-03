@@ -1,12 +1,13 @@
-package com.wing.httpserver;
+package com.wing.httpserver.http;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by russell on 2017/5/13.
+ * 类名修改为HttpRequestHeader，为了区分Response  modified by russell on 2016/6/3
  */
-public class HttpHeader {
+public class HttpRequestHeader {
     // HTTP头关键字
     private String method = "";
     private String protocol = "";
@@ -24,7 +25,7 @@ public class HttpHeader {
     private byte[] remainBytes = null;
 
 
-    public HttpHeader() {
+    public HttpRequestHeader() {
 
         this.unparsedFileds = new ArrayList<String>();
     }

@@ -1,5 +1,7 @@
 package com.wing.httpserver;
 
+import com.wing.httpserver.http.HttpRequestHeader;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -14,13 +16,13 @@ public class Request {
     //
     private ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
 
-    private HttpHeader httpHeader = null;
+    private HttpRequestHeader reqHeader = null;
 
     private Response response = null;
 
     public Request(Socket socket) {
         this.socket = socket;
-        this.httpHeader = new HttpHeader();
+        this.reqHeader = new HttpRequestHeader();
     }
 
     public void parseRequest() throws IOException {
@@ -39,7 +41,7 @@ public class Request {
             byteBuffer.get(nextBytes, 0, nextBytes.length);
 
             // 把字节流解析成HTTP头对象
-            httpHeader.parseByte2HttpHeader(nextBytes);
+            reqHeader.parseByte2HttpHeader(nextBytes);
 //            System.out.println(httpHeader.toString());
 
             this.byteBuffer.clear(); //make buffer ready for writing
@@ -47,27 +49,27 @@ public class Request {
         }
 
         // TODO 此处有问题，通过浏览器输入地址，可以打印出来信息，后续再请求就不停打印，死循环了。还需要抓包分析一下。
-        System.out.println(httpHeader.toString());
+        System.out.println(reqHeader.toString());
     }
 
     public boolean isValidHttpRequest() {
-        return this.httpHeader.isValid();
+        return this.reqHeader.isValid();
     }
 
     public String getMethond() {
-        return this.httpHeader.getMethod();
+        return this.reqHeader.getMethod();
     }
 
     public String getUri() {
-        return this.httpHeader.getUri();
+        return this.reqHeader.getUri();
     }
 
     public String getProtocol() {
-        return this.httpHeader.getProtocol();
+        return this.reqHeader.getProtocol();
     }
 
     public String getProtocolVersion() {
-        return this.httpHeader.getVersion();
+        return this.reqHeader.getVersion();
     }
 
     public Response getResponse() {
